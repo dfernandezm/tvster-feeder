@@ -1,0 +1,13 @@
+{
+  "website": "TPB",
+  "rateLimits": 800,
+  "maxConnections": 10,
+  "baseUrl":  "https://pirateproxy.vip",
+  "tvShowsUrl": "/browse/205",
+  "tvShowsHdUrl": "/browse/208",
+  "moviesUrl": "/browse/201",
+  "moviesHdUrl": "/browse/207",
+  "moviesDvdUrl": "/browse/202",
+  "resultsFilePath": "/tmp/torrents-tpb.json",
+  "visitedFilePath": "/tmp/visited-tpb.json"
+}

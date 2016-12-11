@@ -15,7 +15,7 @@ const recentTimeRegex = /day\s([^,]*).*$/;
 
 // 08-07 2015 or 08-07 05:55
 const fullDateRegex = /(\d+)\-(\d+)\s(?:(\d+$)|(\d+:\d+))/;
-const sizeRegex = /Size\s(\d+\.\d+)\s(GiB|MiB)/;
+const sizeRegex = /Size.(\d+(?:\.\d+)*).(GiB|MiB)/;
 const hashRegex = /urn:btih:(.*)&dn=/;
 
 const tpb = {};
@@ -105,7 +105,7 @@ function parseDate(rawDateString) {
     var unit = parseInt(match[2]);
 
     if (_.startsWith(unit, 'min')) {
-      now.subtract('minutes', mins);
+      now.subtract(mins, 'minutes');
     }
   } else {
     // Today 23:50 / Y-day 11:01
@@ -118,7 +118,7 @@ function parseDate(rawDateString) {
       now.hours(hours);
       now.minutes(minutes);
       if (datePart.indexOf(tpbYesterday) > -1) {
-        now.subtract('days', 1);
+        now.subtract(1, 'days');
       }
     } else {
       // datePart is a full date in TPB format: 08-07 2015 or 08-07 05:55

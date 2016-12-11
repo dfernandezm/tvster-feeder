@@ -3,10 +3,10 @@
  */
 "use strict";
 const parseTorrent = require('parse-torrent');
-const crawlerUtils = require("./crawlerUtils");
+const fileUtils = require("./fileUtils");
 const torrentUtils = {};
 
-torrentUtils.parseTorrentLink = (currentTorrent, torrentLink, crawledParts, append) => {
+torrentUtils.parseTorrentLink = (config, currentTorrent, torrentLink, crawledParts, append) => {
   parseTorrent.remote(torrentLink, function (err, parsedTorrent) {
     if (err) {
       console.log("Error parsing torrent: " + err);
@@ -33,10 +33,11 @@ torrentUtils.parseTorrentLink = (currentTorrent, torrentLink, crawledParts, appe
     torrent.format = (currentTorrent.format) ? currentTorrent.format : "";
     torrent.quality = (currentTorrent.quality) ? currentTorrent.quality : "";
     torrent.audio = (currentTorrent.audio) ? currentTorrent.audio : "";
-    torrent.seeds =  (currentTorrent.seeds) ? currentTorrent.seeds : "";
+    torrent.seeds =  (currentTorrent.seeds) ? currentTorrent.seeds : 0;
 
     if (append) {
-       crawlerUtils.appendObjectToFile(torrent, "/tmp/torrents.json", "/tmp/visited.json", crawledParts);   
+       //noinspection JSUnresolvedVariable
+      fileUtils.appendObjectToFile(torrent, config.resultsFilePath, config.visitedFilePath, crawledParts);
     }
   });
 }

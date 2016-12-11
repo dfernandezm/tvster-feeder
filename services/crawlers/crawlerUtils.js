@@ -1,45 +1,39 @@
 "use strict";
-let fs = require("fs");
-const FOOTER = ']}';
-const HEADER = '{"torrents": [ \n';
+
+const _ = require("lodash");
+const Crawler = require("node-webcrawler");
 const crawlerUtils = {};
 
-crawlerUtils.appendFooterToFile = (filePath) => {
-  fs.appendFile(filePath, FOOTER, function (err) {
-    if (err) {
-      console.log("Error appending " + err);
-      return false;
-    }
-  });
+crawlerUtils.crawlWebsite = (config, crawlingBlock, crawlerFinishedBlock) => {
+  var crawledParts = [];
+  let crawler = instantiateCrawler(config, crawledParts, crawlingBlock, crawlerFinishedBlock);
+  startCrawler(crawler, config.urls);
 }
 
-crawlerUtils.appendHeaderToFile = (filePath) => {
-  fs.appendFile(filePath, HEADER, function (err) {
-    if (err) {
-      console.log("Error appending " + err);
-      return false;
-    }
-  });
+let startCrawler = (crawler, urls) => {
+  crawler.queue(urls);
 }
 
-crawlerUtils.appendObjectToFile = (object, filePath, visitedFilePath, crawledParts) => {
-  let torrentJson = JSON.stringify(object);
-  torrentJson = torrentJson + ", \n";
-
-  fs.appendFile(filePath, torrentJson, function (err) {
-    if (err) {
-      console.log("Error appending " + err);
-      return false;
-    }
-    
-    fs.writeFile(visitedFilePath,  JSON.stringify(crawledParts), { flag : 'w' }, function(err) {
-      if (err) {
-        console.log("Error appending " + err);
+let instantiateCrawler = (config, crawledParts, crawlingBlock, onDrainFunction) => {
+  let crawler = new Crawler({
+    maxConnections : config.maxConnections,
+    rateLimits: config.rateLimits,
+    callback : function (error, result, $) {
+      if (error) {
+        console.log(error);
         return false;
+      } else {
+        if (_.isFunction($)) {
+          crawlingBlock(config, crawler, result, $, crawledParts);
+        } else {
+          console.log("$ is not a function -- terminating");
+        }
       }
-      console.log("Save visited pages");
-    })
-  })
+    },
+    onDrain: onDrainFunction
+  });
+
+  return crawler;
 }
 
 module.exports = crawlerUtils;
