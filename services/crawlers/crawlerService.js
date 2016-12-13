@@ -7,7 +7,7 @@ crawlerService.crawlTpb = () => {
 }
 
 crawlerService.searchInTpb = (query) => {
-  //tpbCrawler.liveSearch(query);
+  return tpbCrawler.search(query);
 }
 
 

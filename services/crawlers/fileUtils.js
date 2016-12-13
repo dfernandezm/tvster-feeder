@@ -41,7 +41,7 @@ fileUtils.appendObjectToFile = (object, filePath, visitedFilePath, crawledParts)
         console.log("Error appending " + err);
         return false;
       }
-      console.log("Save visited pages");
+      console.log("Save crawledParts");
     })
   })
 }

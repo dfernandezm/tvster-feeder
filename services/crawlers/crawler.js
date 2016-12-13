@@ -3,5 +3,7 @@
 /// - For testing only, remove when done
 
 let crawlerService = require("./crawlerService");
-crawlerService.crawlTpb();
+crawlerService.searchInTpb("Suits").then(function(torrents) {
+    console.log("Resolved promise with torrents: " + JSON.stringify(torrents));
+});
 

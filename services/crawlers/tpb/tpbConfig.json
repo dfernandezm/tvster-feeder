@@ -9,5 +9,6 @@
   "moviesHdUrl": "/browse/207",
   "moviesDvdUrl": "/browse/202",
   "resultsFilePath": "/tmp/torrents-tpb.json",
-  "visitedFilePath": "/tmp/visited-tpb.json"
+  "visitedFilePath": "/tmp/visited-tpb.json",
+  "searchTvShowsPath": "/search/{}/0/7/200"
 }
