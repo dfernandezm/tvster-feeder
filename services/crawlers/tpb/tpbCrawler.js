@@ -22,7 +22,6 @@ tpbCrawler.crawlTvShows = () => {
     //noinspection JSUnresolvedVariable
     config.urls = [tvShowsUrl, tvShowsHdUrl];
     config.contentType = "TV_SHOW";
-    config.limitPages = 50;
     crawlerUtils.crawlWebsite(config, crawlIndividualPage, crawlFinish(config.resultsFilePath));
 }
 
@@ -34,7 +33,6 @@ tpbCrawler.crawlMovies = () => {
     //noinspection JSUnresolvedVariable
     config.urls = [moviesUrl, moviesHdUrl];
     config.contentType = "MOVIE";
-    config.limitPages = 50;
     crawlerUtils.crawlWebsite(config, crawlIndividualPage, crawlFinish(config.resultsFilePath));
 }
 
@@ -64,20 +62,25 @@ tpbCrawler.search = (query) => {
 
 function crawlIndividualPage(config, crawler, result, $) {
     if (result.statusCode === 200) {
+        let isSearch = config.crawlType === "SEARCH";
         var torrentsRead = tpb.extractTorrentDataForSinglePage($);
         for (let torrent of torrentsRead) {
             torrent.contentType = config.contentType;
-            torrentUtils.parseTorrentLink(config, torrent, torrent.magnetLink, crawledParts, false);
+            torrentUtils.parseTorrentLink(config, torrent, torrent.magnetLink, crawledParts, !isSearch);
         }
 
-        if (crawledParts.length === config.limitPages && config.crawlType === "SEARCH") {
+        if (crawledParts.length === config.limitPages && isSearch) {
             console.log("Finishing search here");
             return true;
         } else {
-            let paginationLinks = $("#searchResult").parent().next("div").find("a");
-            if (config.crawlType === "SEARCH") {
-                // Get the last link of the pager -- it is the nextPage link
-                paginationLinks = paginationLinks.last();
+
+            let paginationLinks;
+            if (isSearch) {
+                // Get the last link of the pager -- it is the nextPage link (search results view)
+                paginationLinks = $("#searchResult").parent().next("div").find("a").last();
+            } else {
+                // Get all pages o the last row of results (browse view)
+                paginationLinks = $("#searchResult").find("tr").last().find("a").last();
             }
 
             //noinspection JSUnresolvedVariable

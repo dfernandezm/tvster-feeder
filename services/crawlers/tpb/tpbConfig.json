@@ -2,6 +2,7 @@
   "website": "TPB",
   "rateLimits": 800,
   "maxConnections": 10,
+  "limitPages": 50,
   "baseUrl":  "https://pirateproxy.vip",
   "tvShowsUrl": "/browse/205",
   "tvShowsHdUrl": "/browse/208",
@@ -10,5 +11,6 @@
   "moviesDvdUrl": "/browse/202",
   "resultsFilePath": "/tmp/torrents-tpb.json",
   "visitedFilePath": "/tmp/visited-tpb.json",
-  "searchTvShowsPath": "/search/{}/0/7/200"
+  "searchTvShowsPath": "/search/{}/0/7/205",
+  "searchTvShowsHdPath": "/search/{}/0/7/208"
 }

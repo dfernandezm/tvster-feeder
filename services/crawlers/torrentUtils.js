@@ -39,7 +39,10 @@ torrentUtils.parseTorrentLink = (config, currentTorrent, torrentLink, crawledPar
        //noinspection JSUnresolvedVariable
       fileUtils.appendObjectToFile(torrent, config.resultsFilePath, config.visitedFilePath, crawledParts);
     } else {
-      config.torrents.push(torrent);
+      if (config.torrents) {
+        config.torrents.push(torrent);
+      }
+      
     }
   });
 }
