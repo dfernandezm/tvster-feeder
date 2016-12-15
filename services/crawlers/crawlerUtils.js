@@ -37,11 +37,24 @@ crawlerUtils.crawlWebsitePromise = (config, crawlingBlock, crawlerFinishedBlock)
     });
 }
 
+crawlerUtils.crawlWebsitePromise2 = (config, crawlingBlock, crawlerFinishedBlock) => {
+    return new Promise(function(resolve, reject) {
+        let crawler = instantiateCrawler(onfig, crawledParts, crawlingBlock, onDrainResolver(resolve, crawlerFinishedBlock));
+        startCrawler(crawler, config.urls);
+    });
+}
+
+function onDrainResolver(resolve, crawlerFinishedBlock) {
+  return function (pool) {
+    return resolve(crawlerFinishedBlock());
+  }
+}
+
 let startCrawler = (crawler, urls) => {
   crawler.queue(urls);
 }
 
-let instantiateCrawler = (config, crawledParts, crawlingBlock, onDrainFunction) => {
+let instantiateCrawler = (config, crawledParts, crawlingBlock, onDrainResolver) => {
   let crawler = new Crawler({
     maxConnections : config.maxConnections,
     rateLimits: config.rateLimits,
@@ -57,7 +70,7 @@ let instantiateCrawler = (config, crawledParts, crawlingBlock, onDrainFunction) 
         }
       }
     },
-    onDrain: onDrainFunction
+    onDrain: onDrainResolver
   });
 
   return crawler;

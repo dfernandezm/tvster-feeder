@@ -48,12 +48,12 @@ tpbCrawler.search = (query) => {
     let searchUrl = config.baseUrl + searchPathWithQuery;
     config.urls = [searchUrl];
     config.crawlType = "SEARCH";
-    config.limitPages = 2;
+    config.limitPages = 1;
     config.torrents = [];
     crawledParts.push(searchUrl);
 
     return new Promise(function(resolve, reject) {
-        return crawlerUtils.crawlWebsitePromise(config, crawlIndividualPage, crawlFinishSearchPromise(config)).then(function(torrents) {
+        return crawlerUtils.crawlWebsitePromise(config, crawlIndividualPage, crawlFinishSearchPromise2(config)).then(function(torrents) {
             console.log("Resolved promise crawler promise, will return found torrents");
             return resolve(torrents);
         });
@@ -123,6 +123,18 @@ function crawlFinish(resultsFilePath) {
  */
 function crawlFinishSearchPromise(config) {
     return function (pool) {
+        if (config.torrents) {
+            return config.torrents;
+        }
+        console.log("Finished");
+    }
+}
+
+/**
+* More simplified version of the above function
+*/
+function crawlFinishSearchPromise2(config) {
+    return function() {
         if (config.torrents) {
             return config.torrents;
         }
