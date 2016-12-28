@@ -11,7 +11,7 @@ crawlerUtils.crawlWebsite = (config, crawlingBlock, crawlerFinishedBlock) => {
 }
 
 // Promisified version of crawler, the crawlerFinishedBlock is used to resolve the promise
-crawlerUtils.crawlWebsitePromise = (config, crawlingBlock, crawlerFinishedBlock) => {
+crawlerUtils.crawlWebsitePromiseOld = (config, crawlingBlock, crawlerFinishedBlock) => {
     return new Promise(function(resolve, reject) {
         let crawler = new Crawler({
             maxConnections : config.maxConnections,
@@ -37,9 +37,10 @@ crawlerUtils.crawlWebsitePromise = (config, crawlingBlock, crawlerFinishedBlock)
     });
 }
 
-crawlerUtils.crawlWebsitePromise2 = (config, crawlingBlock, crawlerFinishedBlock) => {
+crawlerUtils.crawlWebsitePromise = (config, crawlingBlock, crawlerFinishedBlock) => {
     return new Promise(function(resolve, reject) {
-        let crawler = instantiateCrawler(onfig, crawledParts, crawlingBlock, onDrainResolver(resolve, crawlerFinishedBlock));
+        var crawledParts = [];
+        let crawler = instantiateCrawler(config, crawledParts, crawlingBlock, onDrainResolver(resolve, crawlerFinishedBlock));
         startCrawler(crawler, config.urls);
     });
 }

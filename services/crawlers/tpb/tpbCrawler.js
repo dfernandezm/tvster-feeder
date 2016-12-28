@@ -1,4 +1,5 @@
 "use strict";
+const _ = require("lodash");
 const tpb = require("./tpbDataExtractor");
 const urlencode = require('urlencode');
 const format = require('string-format');
@@ -7,10 +8,9 @@ const crawlerUtils = require("../crawlerUtils");
 const fileUtils = require("../fileUtils");
 const config = require("./tpbConfig.json");
 
-
 const tpbCrawler = {};
 
-// Method mode of string format
+// Method mode of string format function, 'format' can be called directly on a string variable
 format.extend(String.prototype);
 var crawledParts = [];
 
@@ -22,7 +22,7 @@ tpbCrawler.crawlTvShows = () => {
     //noinspection JSUnresolvedVariable
     config.urls = [tvShowsUrl, tvShowsHdUrl];
     config.contentType = "TV_SHOW";
-    crawlerUtils.crawlWebsite(config, crawlIndividualPage, crawlFinish(config.resultsFilePath));
+    crawlerUtils.crawlWebsite(config, crawlIndividualPage, onCrawlFinish(config.resultsFilePath));
 }
 
 tpbCrawler.crawlMovies = () => {
@@ -33,28 +33,36 @@ tpbCrawler.crawlMovies = () => {
     //noinspection JSUnresolvedVariable
     config.urls = [moviesUrl, moviesHdUrl];
     config.contentType = "MOVIE";
-    crawlerUtils.crawlWebsite(config, crawlIndividualPage, crawlFinish(config.resultsFilePath));
+    crawlerUtils.crawlWebsite(config, crawlIndividualPage, onCrawlFinish(config.resultsFilePath));
 }
 
 /**
- * Returns a promise that resolves when limitPages have been crawled from the given 'query' on TPB
+ * Returns a promise that resolves when 'limitPages' have been crawled from the given search 'query' has been
+ * issued against TPB
  *
  * @param query
  * @returns {Promise}
  */
 tpbCrawler.search = (query) => {
     let urlEncodedQuery = urlencode(query, "utf8");
-    let searchPathWithQuery =  config.searchTvShowsPath.format(urlEncodedQuery);
+
+    //let searchPathWithQuery =  config.searchTvShowsPath.format(urlEncodedQuery);
+    let searchPathWithQuery =  config.searchGeneralPath.format(urlEncodedQuery);
     let searchUrl = config.baseUrl + searchPathWithQuery;
-    config.urls = [searchUrl];
-    config.crawlType = "SEARCH";
-    config.limitPages = 1;
-    config.torrents = [];
+
+    let searchConfig = {};
+    searchConfig.urls = [searchUrl];
+    searchConfig.crawlType = "SEARCH";
+    searchConfig.limitPages = 1;
+    searchConfig.torrents = [];
+
+    // Augment config with custom config for searching
+    let currentConfig = _.extend(config, searchConfig)
     crawledParts.push(searchUrl);
 
     return new Promise(function(resolve, reject) {
-        return crawlerUtils.crawlWebsitePromise(config, crawlIndividualPage, crawlFinishSearchPromise2(config)).then(function(torrents) {
-            console.log("Resolved promise crawler promise, will return found torrents");
+        return crawlerUtils.crawlWebsitePromise(currentConfig, crawlIndividualPage, onSearchFinish(currentConfig)).then(function(torrents) {
+            console.log("Resolved promise for crawler, will return search results");
             return resolve(torrents);
         });
     });
@@ -70,11 +78,12 @@ function crawlIndividualPage(config, crawler, result, $) {
         }
 
         if (crawledParts.length === config.limitPages && isSearch) {
-            console.log("Finishing search here");
+            console.log("Finishing search");
             return true;
         } else {
 
             let paginationLinks;
+
             if (isSearch) {
                 // Get the last link of the pager -- it is the nextPage link (search results view)
                 paginationLinks = $("#searchResult").parent().next("div").find("a").last();
@@ -105,7 +114,7 @@ function continueWithPagination(config, crawler, paginationSelector, $) {
     });
 }
 
-function crawlFinish(resultsFilePath) {
+function onCrawlFinish(resultsFilePath) {
     return function (pool) {
         if (config.resultsFilePath) {
             fileUtils.appendFooterToFile(resultsFilePath);
@@ -115,30 +124,15 @@ function crawlFinish(resultsFilePath) {
 }
 
 /**
- *  This function creates a closure used to resolve the crawler promise once finished. It returns a function following
- *  the contract of the "onDrain" event emitted by the crawler when it finishes execution. The returned function returns
+ *  This function creates a closure used to resolve the crawler promise once finished. The returned function returns
  *  the actual result (the list of torrents found)
- * @param config
- * @returns {Function}
- */
-function crawlFinishSearchPromise(config) {
-    return function (pool) {
-        if (config.torrents) {
-            return config.torrents;
-        }
-        console.log("Finished");
-    }
-}
-
-/**
-* More simplified version of the above function
 */
-function crawlFinishSearchPromise2(config) {
+function onSearchFinish(config) {
     return function() {
         if (config.torrents) {
             return config.torrents;
         }
-        console.log("Finished");
+        console.log("Process finished");
     }
 }
 
