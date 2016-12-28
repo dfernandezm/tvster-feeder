@@ -1,6 +1,8 @@
 /**
  * Created by david on 11/12/2016.
  */
+"use strict"
+const _ = require("lodash");
 const divxTotalDataExtractor = require("./divxTotalDataExtractor");
 const torrentUtils = require("../torrentUtils");
 const crawlerUtils = require("../crawlerUtils");
@@ -14,39 +16,66 @@ var crawledParts = [];
 divxTotalCrawler.crawlTvShows = () => {
 
     let tvShowsUrl = config.baseUrl + config.tvShowsUrl;
+    
+    let crawlConfig = {};
+    crawlConfig.urls = [tvShowsUrl];
+    crawlConfig.contentType = "TV_SHOW";
+    let currentConfig = _.extend(config, crawlConfig);
+    crawlerUtils.crawlWebsite(currentConfig, crawlIndividualPage, onCrawlFinish(config.resultsFilePath));
+}
 
-    //noinspection JSUnresolvedVariable
-    config.urls = [tvShowsUrl];
-    config.contentType = "TV_SHOW";
-    crawlerUtils.crawlWebsite(config, crawlIndividualPage, crawlFinish(config.resultsFilePath));
+divxTotalCrawler.crawlMovies = () => {
+    let moviesUrl = config.baseUrl + config.moviesUrl;
+
+    let crawlConfig = {};
+    crawlConfig.urls = [moviesUrl];
+    crawlConfig.contentType = "MOVIE";
+    let currentConfig = _.extend(config, crawlConfig);
+    crawlerUtils.crawlWebsite(currentConfig, crawlIndividualPage, onCrawlFinish(config.resultsFilePath));
 }
 
 function crawlIndividualPage(config, crawler, result, $) {
     if (result.statusCode === 200) {
-        //TODO: separate in movies and tvShows sections as they are different
-        navigateMovieLinksIfNecessary(crawler, $);
+        if (config.contentType === "TV_SHOW") {
+            navigateTvShowsLinksIfNecessary(crawler, $);
+        } else { // "MOVIE"
+            navigateMovieLinksIfNecessary(crawler, $);
+        }
+        extractDataIfPossible(config, crawler, $);
+    } else {
+        console.log("Error connecting: " + result.statusCode);
+    }
+}
 
-        navigateTvShowsLinksIfNecessary(crawler, $);
+function extractDataIfPossible(config, crawler, $) {
+    var torrentsRead = divxTotalDataExtractor.extractData(config.contentType, $);
+    let i = 0;
+    let pauseMs = 0;
+    for (let torrent of torrentsRead) {
 
-        var torrentsRead = divxTotalDataExtractor.extractData(config, $);
-        for (let torrent of torrentsRead) {
-            torrent.contentType = config.contentType;
-            torrentUtils.parseTorrentLink(config, torrent, torrent.magnetLink, crawledParts, true);
+        if (i % 2 === 0) {
+            pauseMs = 500;
+        } else {
+            pauseMs = 700;
         }
 
-        let paginationLinks = $("div.pagination a");
-
-        //noinspection JSUnresolvedVariable
-        continueWithPagination(config.baseUrl, crawler, paginationLinks, $);
+        setTimeout(() => {
+            torrentUtils.parseTorrentLink(config, torrent, torrent.torrentLink, crawledParts, true);
+        }, pauseMs);
     }
+
+    let paginationLinks = $("div.pagination a");
+
+    //noinspection JSUnresolvedVariable
+    continueWithPagination(config.baseUrl, crawler, paginationLinks, $);
 }
 
 function continueWithPagination(baseUrl, crawler, paginationSelector, $) {
     $(paginationSelector).each(function (index, element) {
         var newPage = $(element).attr("href");
-        if (crawledParts.indexOf(newPage) == -1) {
+        if (crawledParts.indexOf(newPage) === -1) {
             crawledParts.push(newPage);
-            let newUrl = baseUrl + newPage;
+            let newUrl = newPage;
             console.log("New Url to visit: " + newUrl);
             crawler.queue(newUrl);
         }
@@ -81,7 +110,7 @@ function navigateMovieLink(crawler, domElement, $) {
     crawler.queue(newUrl);
 }
 
-function crawlFinish(resultsFilePath) {
+function onCrawlFinish(resultsFilePath) {
     return function (pool) {
         fileUtils.appendFooterToFile(resultsFilePath);
         console.log("Finished");

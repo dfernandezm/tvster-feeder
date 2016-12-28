@@ -72,9 +72,21 @@ function crawlIndividualPage(config, crawler, result, $) {
     if (result.statusCode === 200) {
         let isSearch = config.crawlType === "SEARCH";
         var torrentsRead = tpb.extractTorrentDataForSinglePage($);
+        let pauseMs = 0;
+        let i = 0;
         for (let torrent of torrentsRead) {
             torrent.contentType = config.contentType;
-            torrentUtils.parseTorrentLink(config, torrent, torrent.magnetLink, crawledParts, !isSearch);
+            if (i > 10) {
+                pauseMs = 500;
+            }
+
+            if (i > 20) {
+                pauseMs = 800;
+            }
+
+            setTimeout(function() {
+                torrentUtils.parseTorrentLink(config, torrent, torrent.magnetLink, crawledParts, !isSearch);
+            }, pauseMs);
         }
 
         if (crawledParts.length === config.limitPages && isSearch) {

@@ -1,1 +1,14 @@
-{}
+{
+  "website": "DT",
+  "rateLimits": 800,
+  "maxConnections": 10,
+  "limitPages": 50,
+  "baseUrl":  "http://www.divxtotal.com",
+  "tvShowsUrl": "/series",
+  "moviesUrl": "/peliculas/",
+  "resultsFilePath": "/tmp/torrents-dt.json",
+  "visitedFilePath": "/tmp/visited-dt.json",
+  "searchTvShowsPath": "/search/{}/0/7/205",
+  "searchTvShowsHdPath": "/search/{}/0/7/208",
+  "searchGeneralPath": "/search/{}/0/7/200"
+}

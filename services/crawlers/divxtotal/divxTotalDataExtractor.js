@@ -2,13 +2,14 @@
  * Created by david on 11/12/2016.
  */
 "use strict"
-
 const divxTotalDataExtractor = {};
 
-
-divxTotalDataExtractor.extractData = ($) => {
-    attemptTvShowDataExtraction($);
-    attemptMovieDataExtraction($);
+divxTotalDataExtractor.extractData = (contentType, $) => {
+    if (contentType === "TV_SHOW") {
+        return attemptTvShowDataExtraction($);
+    } else { // "MOVIE"
+        return attemptMovieDataExtraction($);
+    }
 }
 
 function attemptTvShowDataExtraction($) {
@@ -22,7 +23,7 @@ function attemptTvShowDataExtraction($) {
         let episodeTitle = data.text();
 
         let currentTorrent = {
-            contentType: config.contentType,
+            contentType: "TV_SHOW",
             tvShowTitle: (tvShowTitle) ? tvShowTitle : "",
             title: episodeTitle,
             torrentLink: link,
@@ -31,6 +32,8 @@ function attemptTvShowDataExtraction($) {
 
         torrents.push(currentTorrent);
     });
+
+    return torrents;
 }
 
 
@@ -90,10 +93,11 @@ function attemptMovieDataExtraction($) {
             quality: quality,
             language: "es"
         }
-        
+
         torrents.push(currentTorrent);
     });
-
+    
+    return torrents;
 }
 
 module.exports = divxTotalDataExtractor;
