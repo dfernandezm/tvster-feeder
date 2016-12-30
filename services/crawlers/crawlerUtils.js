@@ -1,6 +1,7 @@
 "use strict";
 
 const _ = require("lodash");
+const Promise = require("bluebird");
 const Crawler = require("node-webcrawler");
 const crawlerUtils = {};
 
@@ -10,44 +11,25 @@ crawlerUtils.crawlWebsite = (config, crawlingBlock, crawlerFinishedBlock) => {
   startCrawler(crawler, config.urls);
 }
 
-// Promisified version of crawler, the crawlerFinishedBlock is used to resolve the promise
-crawlerUtils.crawlWebsitePromiseOld = (config, crawlingBlock, crawlerFinishedBlock) => {
-    return new Promise(function(resolve, reject) {
-        let crawler = new Crawler({
-            maxConnections : config.maxConnections,
-            rateLimits: config.rateLimits,
-            callback : function (error, result, $) {
-                if (error) {
-                    console.log(error);
-                    reject(error);
-                } else {
-                    if (_.isFunction($)) {
-                        crawlingBlock(config, crawler, result, $, []);
-                    } else {
-                        console.log("$ is not a function -- terminating");
-                    }
-                }
-            },
-            onDrain: function (pool) {
-                return resolve(crawlerFinishedBlock(pool));
-            }
-        });
-
-        crawler.queue(config.urls);
-    });
-}
-
 crawlerUtils.crawlWebsitePromise = (config, crawlingBlock, crawlerFinishedBlock) => {
     return new Promise(function(resolve, reject) {
         var crawledParts = [];
-        let crawler = instantiateCrawler(config, crawledParts, crawlingBlock, onDrainResolver(resolve, crawlerFinishedBlock));
+        let crawler = instantiateCrawler(config, crawledParts, crawlingBlock, onDrainResolver(config, resolve, crawlerFinishedBlock));
         startCrawler(crawler, config.urls);
     });
 }
 
-function onDrainResolver(resolve, crawlerFinishedBlock) {
+function onDrainResolver(config, resolve, crawlerFinishedBlock) {
   return function (pool) {
-    return resolve(crawlerFinishedBlock());
+      if (config.searchPromises && config.searchPromises.length > 0) {
+          // Wait for all search promises to resolve before resolving the crawler one
+          Promise.all(config.searchPromises).then((data) => {
+              return resolve(crawlerFinishedBlock());
+          });
+      } else {
+          // Resolve the crawler promise
+          return resolve(crawlerFinishedBlock());
+      }
   }
 }
 
@@ -57,9 +39,9 @@ let startCrawler = (crawler, urls) => {
 
 let instantiateCrawler = (config, crawledParts, crawlingBlock, onDrainResolver) => {
   let crawler = new Crawler({
-    maxConnections : config.maxConnections,
+    maxConnections: config.maxConnections,
     rateLimits: config.rateLimits,
-    callback : function (error, result, $) {
+    callback: function (error, result, $) {
       if (error) {
         console.log(error);
         return false;

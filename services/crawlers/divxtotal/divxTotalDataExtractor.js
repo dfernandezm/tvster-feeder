@@ -7,8 +7,14 @@ const divxTotalDataExtractor = {};
 divxTotalDataExtractor.extractData = (contentType, $) => {
     if (contentType === "TV_SHOW") {
         return attemptTvShowDataExtraction($);
-    } else { // "MOVIE"
+    } else if (contentType === "MOVIE") {
         return attemptMovieDataExtraction($);
+    } else {
+        let torrents = attemptTvShowDataExtraction($);
+        if (torrents.length === 0) {
+            torrents = attemptMovieDataExtraction($);
+        }
+        return torrents;
     }
 }
 
@@ -40,7 +46,7 @@ function attemptTvShowDataExtraction($) {
 function attemptMovieDataExtraction($) {
 
     let torrents = [];
-    
+    let titleMovie = $("div.box_content h1").text();
     $("div.box_content div.ficha_content").each(function(index, elem) {
         
         // Info
@@ -85,6 +91,7 @@ function attemptMovieDataExtraction($) {
 
         var torrentLinkElem = $("div.ficha_link_det h3 a", context);
         var torrentLink = torrentLinkElem.attr("href");
+        console.log("///// Torrent Link: " + torrentLink + " -- Title movie: " + titleMovie);
 
         let currentTorrent = {
             contentType: "MOVIE",

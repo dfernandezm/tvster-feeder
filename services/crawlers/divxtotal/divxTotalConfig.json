@@ -8,7 +8,5 @@
   "moviesUrl": "/peliculas/",
   "resultsFilePath": "/tmp/torrents-dt.json",
   "visitedFilePath": "/tmp/visited-dt.json",
-  "searchTvShowsPath": "/search/{}/0/7/205",
-  "searchTvShowsHdPath": "/search/{}/0/7/208",
-  "searchGeneralPath": "/search/{}/0/7/200"
+  "searchGeneralPath": "/?s={}"
 }

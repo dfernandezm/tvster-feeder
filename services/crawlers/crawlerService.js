@@ -12,7 +12,11 @@ crawlerService.searchInTpb = (query) => {
 }
 
 crawlerService.crawlDivxTotal = () => {
-  divxTotalCrawler.crawlTvShows();
+  divxTotalCrawler.crawlMovies();
+}
+
+crawlerService.searchInDivxTotal = (query) => {
+  return divxTotalCrawler.search(query);
 }
 
 module.exports = crawlerService;
