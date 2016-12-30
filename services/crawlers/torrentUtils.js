@@ -36,7 +36,7 @@ torrentUtils.parseTorrentLink = (config, currentTorrent, torrentLink, crawledPar
 
         let torrent = {};
 
-        if (_.startsWith("magnet:")) {
+        if (_.startsWith(torrentLink, "magnet:")) {
           torrent.magnetLink = torrentLink;
         } else {
           torrent.torrentLink = torrentLink;
