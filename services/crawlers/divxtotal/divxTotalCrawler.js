@@ -70,7 +70,7 @@ divxTotalCrawler.search = (query) => {
 function crawlIndividualSearchPage(config, crawler, result, $) {
     if (result.statusCode === 200) {
         config.contentType = "UNKNOWN";
-
+        config.crawlType = "SEARCH";
         // When searching in DivxTotal, we only pick first result of the first list, then we visit
         // its link and get all the results in the resulting page:
         // query -> list results -> 1st result -> all data in the page extracted
@@ -98,11 +98,8 @@ function crawlIndividualPage(config, crawler, result, $) {
 
         extractDataIfPossible(config, $);
 
-
         // Get the last link of the pager -- it is the nextPage link (search results view)
         let paginationLink = $("div.pagination a").last().prev();
-
-        //let paginationLinks = $("div.pagination a");
 
         //noinspection JSUnresolvedVariable
         continueWithPagination(config.baseUrl, crawler, paginationLink, $);
@@ -123,24 +120,29 @@ function crawlIndividualPage(config, crawler, result, $) {
  * @param $
  */
 function extractDataIfPossible(config, $) {
-    let isSearch = config.crawlType === "SEARCH";
+    let isSearch = (config.crawlType === "SEARCH");
     let torrentsRead = divxTotalDataExtractor.extractData(config.contentType, $);
     if (torrentsRead.length > 0) {
         // Each torrent is visited to get info, create promise with whole set and save it
         let torrentPromise = Promise.map(torrentsRead, function(torrentRead) {
             // Promise.map awaits for returned promises as well.
-            console.log(JSON.stringify(torrentRead));
             return torrentUtils.parseTorrentLink(config, torrentRead, torrentRead.torrentLink, crawledParts, !isSearch);
-        }).each(function(torrent) {
-            console.log("Read torrent: " + torrent.name);
-            if (config.torrents) {
-                config.torrents.push(torrent);
+        }).each((torrent) => {
+            // This is a hack to not reject intermediate promises, that would break the chain and return early, we want
+            // to ignore these errors and continue
+            if (torrent === null) {
+                console.log("Unhandled error -- continue");
+            } else {
+                if (config.torrents) {
+                    config.torrents.push(torrent);
+                }
             }
-        }).then(function() {
+        }).then(() => {
             console.log("All torrents read");
-        });
+        })
 
         if (isSearch) {
+            console.log("Pushing promise...");
             // When searching, save promise so that we make onDrain callback wait for them to resolve before returning
             config.searchPromises.push(torrentPromise);
         }

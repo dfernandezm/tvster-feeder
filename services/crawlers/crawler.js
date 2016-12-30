@@ -10,9 +10,9 @@ let query = process.argv[2] || "Suits";
 //       console.log("Resolved promise with torrents: " + JSON.stringify(torrents));
 //  });
 //
-// crawlerService.searchInDivxTotal(query).then(function(torrents) {
-//      console.log("Resolved promise with torrents: " + JSON.stringify(torrents));
-// });
+crawlerService.searchInDivxTotal(query).then(function(torrents) {
+     console.log("Resolved promise with torrents: " + JSON.stringify(torrents));
+});
 
 //crawlerService.crawlTpb();
-crawlerService.crawlDivxTotal();
+//crawlerService.crawlDivxTotal();

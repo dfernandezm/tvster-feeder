@@ -2,6 +2,7 @@
  * Created by david on 09/12/2016.
  */
 "use strict";
+const _ = require("lodash");
 const parseTorrent = require('parse-torrent');
 const ptn = require('parse-torrent-name');
 const fileUtils = require("./fileUtils");
@@ -11,16 +12,23 @@ torrentUtils.parseTorrentLink = (config, currentTorrent, torrentLink, crawledPar
 
   return new Promise(function(resolve, reject) {
     parseTorrent.remote(torrentLink, function (err, parsedTorrent) {
+      
       if (err) {
+        
         console.log("Error parsing torrent: " + torrentLink + " - " + JSON.stringify(currentTorrent) + err);
         if (err.message.indexOf("Error downloading torrent") !== -1) {
+          
           console.log("Retrying in 3 seconds...");
           setTimeout(torrentUtils.parseTorrentLink(config, currentTorrent, torrentLink, crawledParts, append), 3000);
         } else if (err.message.indexOf("Torrent is missing required field")) {
+          
           console.log("Missing info for torrent " + JSON.stringify(parsedTorrent));
-          return reject(err);
+          
+          // hack here -- we should reject, but this is part of a chain that we don't want to break due to errors, so
+          // we resolve with special value (null) and handle that in success callback
+          resolve(null);
         } else {
-          return reject(err);
+          resolve(null);
         }
       }
 
@@ -28,6 +36,11 @@ torrentUtils.parseTorrentLink = (config, currentTorrent, torrentLink, crawledPar
 
         let torrent = {};
 
+        if (_.startsWith("magnet:")) {
+          torrent.magnetLink = torrentLink;
+        } else {
+          torrent.torrentLink = torrentLink;
+        }
         torrent.size = (parsedTorrent.length) ? parseInt(parsedTorrent.length) : currentTorrent.size;
         torrent.hash = parsedTorrent.infoHash;
         torrent.name = parsedTorrent.name;
@@ -69,7 +82,6 @@ torrentUtils.parseTorrentLink = (config, currentTorrent, torrentLink, crawledPar
       }
     });
   });
-
 }
 
 module.exports = torrentUtils;
