@@ -1,5 +1,5 @@
 "use strict";
-
+const debug = require("debug")("services/crawlers:crawlerUtils");
 const _ = require("lodash");
 const Promise = require("bluebird");
 const Crawler = require("node-webcrawler");
@@ -43,13 +43,13 @@ let instantiateCrawler = (config, crawledParts, crawlingBlock, onDrainResolver) 
     rateLimits: config.rateLimits,
     callback: function (error, result, $) {
       if (error) {
-        console.log(error);
+        debug("Error ocurred %o",error);
         return false;
       } else {
         if (_.isFunction($)) {
           crawlingBlock(config, crawler, result, $, crawledParts);
         } else {
-          console.log("$ is not a function -- terminating");
+          debug("$ is not a function -- terminating");
         }
       }
     },

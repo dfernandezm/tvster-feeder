@@ -1,7 +1,8 @@
 /**
  * Created by david on 11/12/2016.
  */
-"use strict"
+"use strict";
+const debug = require("debug")("services/crawlers/divxtotal:divxTotalCrawler");
 const Promise = require("bluebird");
 const _ = require("lodash");
 const divxTotalDataExtractor = require("./divxTotalDataExtractor");
@@ -12,7 +13,7 @@ const urlencode = require('urlencode');
 const format = require('string-format');
 const config = require("./divxTotalConfig.json");
 
-const divxTotalCrawler = {}
+const divxTotalCrawler = {};
 
 var crawledParts = [];
 
@@ -60,7 +61,7 @@ divxTotalCrawler.search = (query) => {
 
     return new Promise(function(resolve, reject) {
         return crawlerUtils.crawlWebsitePromise(currentConfig, crawlIndividualSearchPage, onSearchFinish(currentConfig)).then(function(torrents) {
-            console.log("Resolved promise for crawler, will return search results");
+            debug("Resolved promise for crawler, will return search results");
             return resolve(torrents);
         });
     });
@@ -81,7 +82,7 @@ function crawlIndividualSearchPage(config, crawler, result, $) {
             extractDataIfPossible(config, $);
         }
     } else {
-        console.log("Error connecting: " + result.statusCode);
+        debug("Error connecting: ",result.statusCode);
     }
 }
 
@@ -105,7 +106,7 @@ function crawlIndividualPage(config, crawler, result, $) {
         continueWithPagination(config.baseUrl, crawler, paginationLink, $);
 
     } else {
-        console.log("Error connecting: " + result.statusCode);
+        debug("Error connecting", result.statusCode);
     }
 }
 
@@ -131,18 +132,19 @@ function extractDataIfPossible(config, $) {
             // This is a hack to not reject intermediate promises, that would break the chain and return early, we want
             // to ignore these errors and continue
             if (torrent === null) {
-                console.log("Unhandled error -- continue");
+                debug("Unhandled error -- continue");
             } else {
                 if (config.torrents) {
                     config.torrents.push(torrent);
                 }
             }
         }).then(() => {
-            console.log("All torrents read");
-        })
+            debug("All torrents read");
+        });
 
         if (isSearch) {
-            console.log("Pushing promise...");
+            debug("Pushing promise...");
+
             // When searching, save promise so that we make onDrain callback wait for them to resolve before returning
             config.searchPromises.push(torrentPromise);
         }
@@ -155,7 +157,7 @@ function continueWithPagination(baseUrl, crawler, paginationSelector, $) {
         if (crawledParts.indexOf(newPage) === -1) {
             crawledParts.push(newPage);
             let newUrl = newPage;
-            console.log("New Url to visit: " + newUrl);
+            debug("New Url to visit: ", newUrl);
             crawler.queue(newUrl);
         }
     });
@@ -191,14 +193,14 @@ function navigateMovieLink(crawler, domElement, $) {
     var movieDetailsLink = $("p.seccontnom a", $(domElement));
     var newUrl = movieDetailsLink.attr("href");
     var movieTitle = movieDetailsLink.text();
-    console.log("Movie Section: " + movieTitle);
+    debug("Movie Section: ", movieTitle);
     crawler.queue(newUrl);
 }
 
 function onCrawlFinish(resultsFilePath) {
     return function (pool) {
         fileUtils.appendFooterToFile(resultsFilePath);
-        console.log("Finished");
+        debug("Finished");
     }
 }
 
@@ -209,7 +211,7 @@ function onCrawlFinish(resultsFilePath) {
 function onSearchFinish(config) {
     return function() {
         if (config.torrents) {
-            console.log("The torrents: " + config.torrents);
+            debug("The torrents: ", config.torrents);
             return config.torrents;
         }
     }

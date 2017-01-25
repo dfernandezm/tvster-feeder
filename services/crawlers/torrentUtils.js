@@ -2,6 +2,7 @@
  * Created by david on 09/12/2016.
  */
 "use strict";
+const debug = require("debug")("services/crawlers:torrentUtils");
 const _ = require("lodash");
 const parseTorrent = require('parse-torrent');
 const ptn = require('parse-torrent-name');
@@ -14,15 +15,14 @@ torrentUtils.parseTorrentLink = (config, currentTorrent, torrentLink, crawledPar
     parseTorrent.remote(torrentLink, function (err, parsedTorrent) {
       
       if (err) {
-        
-        console.log("Error parsing torrent: " + torrentLink + " - " + JSON.stringify(currentTorrent) + err);
+        debug("Error parsing torrent: " + torrentLink + " - " + JSON.stringify(currentTorrent) + err);
         if (err.message.indexOf("Error downloading torrent") !== -1) {
           
-          console.log("Retrying in 3 seconds...");
+          debug("Retrying in 3 seconds...");
           setTimeout(torrentUtils.parseTorrentLink(config, currentTorrent, torrentLink, crawledParts, append), 3000);
         } else if (err.message.indexOf("Torrent is missing required field")) {
           
-          console.log("Missing info for torrent " + JSON.stringify(parsedTorrent));
+          debug("Missing info for torrent " + JSON.stringify(parsedTorrent));
           
           // hack here -- we should reject, but this is part of a chain that we don't want to break due to errors, so
           // we resolve with special value (null) and handle that in success callback
@@ -48,7 +48,7 @@ torrentUtils.parseTorrentLink = (config, currentTorrent, torrentLink, crawledPar
 
         let torrentInfo = ptn(torrent.name);
 
-        console.log("Parsed torrent name: " + torrent.name + " - " + JSON.stringify(torrentInfo));
+        debug("Parsed torrent name: " + torrent.name + " - " + JSON.stringify(torrentInfo));
 
         if (currentTorrent.tvShowTitle) {
           torrent.title = currentTorrent.tvShowTitle;
@@ -75,7 +75,7 @@ torrentUtils.parseTorrentLink = (config, currentTorrent, torrentLink, crawledPar
         } else {
           if (config.torrents) {
             config.torrents.push(torrent);
-            console.log("Resolved Torrents are: " + config.torrents.length);
+            debug("Resolved Torrents are ", config.torrents.length);
           }
           return resolve(torrent);
         }

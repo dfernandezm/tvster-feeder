@@ -1,7 +1,8 @@
 /**
  * Created by david on 11/12/2016.
  */
-"use strict"
+"use strict";
+const debug = require("debug")("services/crawlers/divxtotal:divxTotalDataExtractor");
 const divxTotalDataExtractor = {};
 
 divxTotalDataExtractor.extractData = (contentType, $) => {
@@ -91,7 +92,7 @@ function attemptMovieDataExtraction($) {
 
         var torrentLinkElem = $("div.ficha_link_det h3 a", context);
         var torrentLink = torrentLinkElem.attr("href");
-        console.log("///// Torrent Link: " + torrentLink + " -- Title movie: " + titleMovie);
+        debug("///// Torrent Link: " + torrentLink + " -- Title movie: " + titleMovie);
 
         let currentTorrent = {
             contentType: "MOVIE",

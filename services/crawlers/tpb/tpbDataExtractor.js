@@ -1,4 +1,5 @@
 "use strict";
+const debug = require("debug")("services/crawlers/tpb:tpbDataExtractor");
 const format = require('string-format');
 const moment = require('moment');
 const _ = require('lodash');
@@ -57,7 +58,7 @@ tpb.extractTorrentDataForSinglePage = function ($) {
 function readMagnet(tableElement, $) {
   var magnet = $('td > a', tableElement).eq(0).attr('href');
   if (!_.startsWith(magnet, 'magnet:')) {
-    console.log("It is not a magnet -- indirection to ", magnet);
+    debug("It is not a magnet -- indirection to ", magnet);
     return "";
   } else {
     return magnet;
@@ -68,7 +69,7 @@ function readDate(rawDateAndSize) {
   try {
     return parseDate(rawDateAndSize);
   } catch (err) {
-    console.log('Error parsing date ' + rawDateAndSize, err.message);
+    debug('Error parsing date ' + rawDateAndSize, err.message);
     return "";
   }
 }
@@ -77,7 +78,7 @@ function readSize(rawDateAndSize) {
   try {
     return parseSize(rawDateAndSize);
   } catch (err) {
-    console.log("Error parsing size from " + rawDateAndSize, err.message);
+    debug("Error parsing size from " + rawDateAndSize, err.message);
     return "";
   }
 }
@@ -86,7 +87,7 @@ function readSeeds(rawSeeds) {
   try {
     return parseInt(rawSeeds);
   } catch (err) {
-    console.log('Error parsing seeds ' + rawSeeds, err.message);
+    debug('Error parsing seeds ' + rawSeeds, err.message);
     return "";
   }
 }
@@ -169,19 +170,19 @@ function parseSize(rawDateAndSize) {
     }
     return Math.round(number);
   } else {
-    console.log("Cannot parse size from " + rawDateAndSize);
+    debug("Cannot parse size from ", rawDateAndSize);
     return 0;
   }
 }
 
 function getHashFromMagnet(magnetLink) {
-  var match = hashRegex.exec(magnetLink);
-  if (matches(match)) {
-    return match[1];
-  } else {
-    console.log("Cannot return hash from magnet: ", magnetLink);
-  }
-  return null;
+    var match = hashRegex.exec(magnetLink);
+    if (matches(match)) {
+        return match[1];
+    } else {
+        debug("Cannot return hash from magnet: ", magnetLink);
+    }
+    return null;
 }
 
 function matches(arrayMatcher) {

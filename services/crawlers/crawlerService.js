@@ -1,6 +1,7 @@
 "use strict";
-const tpbCrawler = require("./tpb/tpbCrawler")
-const divxTotalCrawler = require("./divxtotal/divxTotalCrawler")
+const debug = require("debug")("services/crawlers:crawlerService");
+const tpbCrawler = require("./tpb/tpbCrawler");
+const divxTotalCrawler = require("./divxtotal/divxTotalCrawler");
 const crawlerService = {};
 
 crawlerService.crawlTpb = () => {

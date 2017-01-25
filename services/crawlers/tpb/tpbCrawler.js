@@ -1,4 +1,5 @@
 "use strict";
+const debug = require("debug")("services/crawlers/tpb:tpbCrawler");
 const _ = require("lodash");
 const tpb = require("./tpbDataExtractor");
 const urlencode = require('urlencode');
@@ -62,7 +63,7 @@ tpbCrawler.search = (query) => {
 
     return new Promise(function(resolve, reject) {
         return crawlerUtils.crawlWebsitePromise(currentConfig, crawlIndividualPage, onSearchFinish(currentConfig)).then(function(torrents) {
-            console.log("Resolved promise for crawler, will return search results");
+            debug("Resolved promise for crawler, will return search results");
             return resolve(torrents);
         });
     });
@@ -78,7 +79,7 @@ function crawlIndividualPage(config, crawler, result, $) {
         }
 
         if (crawledParts.length === config.limitPages && isSearch) {
-            console.log("Finishing search");
+            debug("Finishing search");
             return true;
         } else {
 
@@ -105,11 +106,11 @@ function continueWithPagination(config, crawler, paginationSelector, $) {
             if (crawledParts.indexOf(newPage) == -1) {
                 crawledParts.push(newPage);
                 let newUrl = config.baseUrl + newPage;
-                console.log("New Url to visit: " + newUrl);
+                debug("New Url to visit: " + newUrl);
                 crawler.queue(newUrl);
             }
         } else {
-            console.log("Stopping pagination as limit was reached");
+            debug("Stopping pagination as limit was reached");
         }
     });
 }
@@ -119,7 +120,7 @@ function onCrawlFinish(resultsFilePath) {
         if (config.resultsFilePath) {
             fileUtils.appendFooterToFile(resultsFilePath);
         }
-        console.log("Finished");
+        debug("Finished");
     }
 }
 
@@ -132,7 +133,7 @@ function onSearchFinish(config) {
         if (config.torrents) {
             return config.torrents;
         }
-        console.log("Process finished");
+        debug("Process finished");
     }
 }
 
