@@ -7,12 +7,13 @@ const _ = require("lodash");
 const parseTorrent = require('parse-torrent');
 const ptn = require('parse-torrent-name');
 const fileUtils = require("./fileUtils");
+const indexer = require("../indexer/indexer");
 const torrentUtils = {};
 
 torrentUtils.parseTorrentLink = (config, currentTorrent, torrentLink, crawledParts, append) => {
 
   return new Promise(function(resolve, reject) {
-    parseTorrent.remote(torrentLink, function (err, parsedTorrent) {
+    parseTorrent.remote(torrentLink, async function (err, parsedTorrent) {
       
       if (err) {
         debug("Error parsing torrent: " + torrentLink + " - " + JSON.stringify(currentTorrent) + err);
@@ -75,8 +76,11 @@ torrentUtils.parseTorrentLink = (config, currentTorrent, torrentLink, crawledPar
         } else {
           if (config.torrents) {
             config.torrents.push(torrent);
-            debug("Resolved Torrents are ", config.torrents.length);
+            //debug("Resolved Torrents are ", config.torrents.length);
           }
+
+          let response = await indexer.indexTorrent(torrent);
+           debug("Just indexed: ", response);
           return resolve(torrent);
         }
       }
