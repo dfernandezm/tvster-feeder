@@ -71,22 +71,20 @@ torrentUtils.parseTorrentLink = (config, currentTorrent, torrentLink, crawledPar
 
         if (append) {
           //noinspection JSUnresolvedVariable
-          fileUtils.appendObjectToFile(torrent, config.resultsFilePath, config.visitedFilePath, crawledParts);
-          return resolve(torrent);
+          // fileUtils.appendObjectToFile(torrent, config.resultsFilePath, config.visitedFilePath, crawledParts);
         } else {
           if (config.torrents) {
             config.torrents.push(torrent);
-            //debug("Resolved Torrents are ", config.torrents.length);
           }
-
-          let response = await indexer.indexTorrent(torrent);
-           debug("Just indexed: ", response);
-          return resolve(torrent);
         }
+          debug("Indexing torrent: ", torrent.title);
+          // index it in ElasticSearch
+          indexer.indexTorrent(torrent, config.website.toLowerCase());
+          return resolve(torrent);
       }
     });
   });
-}
+};
 
 module.exports = torrentUtils;
 
