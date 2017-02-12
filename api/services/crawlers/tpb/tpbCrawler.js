@@ -58,7 +58,7 @@ tpbCrawler.search = (query) => {
     searchConfig.torrents = [];
 
     // Augment config with custom config for searching
-    let currentConfig = _.extend(config, searchConfig)
+    let currentConfig = _.extend(config, searchConfig);
     crawledParts.push(searchUrl);
 
     return new Promise(function(resolve, reject) {

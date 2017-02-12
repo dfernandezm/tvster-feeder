@@ -1,16 +1,13 @@
 "use strict";
 const debug = require("debug")("services/crawlers:crawler");
-const indexer = require("./services/indexer/indexer");
+const indexer = require("./api/services/indexer/indexer");
 
 /// - For testing only, remove when done
 
-let crawlerService = require("./services/crawlers/crawlerService");
+let crawlerService = require("./api/services/crawlers/crawlerService");
 
 // 0 - node, 1 - JS file, from 2 -> rest of arguments
 let query = process.argv[2] || "Suits";
- // crawlerService.searchInTpb(query).then(function(torrents) {
- //     debug("Resolved promise with torrents: %o", JSON.stringify(torrents));
- // });
 
 let search = async (query) => {
     try {
@@ -24,7 +21,3 @@ let search = async (query) => {
 };
 
 search(query);
-
-// crawlerService.searchInDivxTotal(query).then(function(torrents) {
-//      console.log("Resolved promise with torrents: " + JSON.stringify(torrents));
-// });
