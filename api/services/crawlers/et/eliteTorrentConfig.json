@@ -1,0 +1,11 @@
+{
+  "website": "ET",
+  "rateLimits": 800,
+  "maxConnections": 10,
+  "limitPages": 100,
+  "baseUrl":  "http://www.elitetorrent.net",
+  "tvShowsUrl": "/categoria/4/series/modo:listado",
+  "moviesUrl": "/categoria/2/peliculas/modo:listado",
+  "moviesHdUrl": "/categoria/13/peliculas-hdrip/modo:listado",
+  "searchGeneralPath": "/resultados/{}/modo:listado"
+}

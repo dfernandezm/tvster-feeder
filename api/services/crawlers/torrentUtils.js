@@ -14,17 +14,17 @@ torrentUtils.parseTorrentLink = (config, currentTorrent, torrentLink, crawledPar
 
   return new Promise(function(resolve, reject) {
     parseTorrent.remote(torrentLink, async function (err, parsedTorrent) {
-      
+
       if (err) {
         debug("Error parsing torrent: " + torrentLink + " - " + JSON.stringify(currentTorrent) + err);
         if (err.message.indexOf("Error downloading torrent") !== -1) {
-          
+
           debug("Retrying in 3 seconds...");
           setTimeout(torrentUtils.parseTorrentLink(config, currentTorrent, torrentLink, crawledParts, append), 3000);
         } else if (err.message.indexOf("Torrent is missing required field")) {
-          
+
           debug("Missing info for torrent " + JSON.stringify(parsedTorrent));
-          
+
           // hack here -- we should reject, but this is part of a chain that we don't want to break due to errors, so
           // we resolve with special value (null) and handle that in success callback
           resolve(null);
@@ -79,7 +79,7 @@ torrentUtils.parseTorrentLink = (config, currentTorrent, torrentLink, crawledPar
         }
           debug("Indexing torrent: ", torrent.title);
           // index it in ElasticSearch
-          indexer.indexTorrent(torrent, config.website.toLowerCase());
+          //indexer.indexTorrent(torrent, config.website.toLowerCase());
           return resolve(torrent);
       }
     });
@@ -87,4 +87,3 @@ torrentUtils.parseTorrentLink = (config, currentTorrent, torrentLink, crawledPar
 };
 
 module.exports = torrentUtils;
-

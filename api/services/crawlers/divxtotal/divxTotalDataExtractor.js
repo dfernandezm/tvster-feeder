@@ -17,7 +17,7 @@ divxTotalDataExtractor.extractData = (contentType, $) => {
         }
         return torrents;
     }
-}
+};
 
 function attemptTvShowDataExtraction($) {
     
@@ -35,14 +35,13 @@ function attemptTvShowDataExtraction($) {
             title: episodeTitle,
             torrentLink: link,
             language: "es"
-        }
+        };
 
         torrents.push(currentTorrent);
     });
 
     return torrents;
 }
-
 
 function attemptMovieDataExtraction($) {
 
@@ -90,9 +89,8 @@ function attemptMovieDataExtraction($) {
             }
         });
 
-        var torrentLinkElem = $("div.ficha_link_det h3 a", context);
-        var torrentLink = torrentLinkElem.attr("href");
-        debug("///// Torrent Link: " + torrentLink + " -- Title movie: " + titleMovie);
+        let torrentLinkElem = $("div.ficha_link_det h3 a", context);
+        let torrentLink = torrentLinkElem.attr("href");
 
         let currentTorrent = {
             contentType: "MOVIE",
